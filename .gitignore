@@ -1,0 +1,13 @@
+
+.DS_Store
+*.db
+
+bin
+tmp
+.vs
+*.user
+xcuserdata
+
+projects/android-studio
+projects/visual-studio
+projects/xcode

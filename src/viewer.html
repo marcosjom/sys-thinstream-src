@@ -1,0 +1,990 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Thinstream viewer</title>
+  <script lang="javascript">
+
+    //TS (ThinStream)
+    class TS {
+      constructor() {
+        this.version      = "0.1";
+      }
+    }
+
+    //TS.Video
+    TS.Video = class Video {
+      constructor() {
+        this.conn          = new TS.Video.Conn();
+        this.canvas        = new TS.Video.Canvas();
+        this.ticksAccum   = 0;
+        //config
+        this.conn.setCanvas(this.canvas);
+        this.canvas.setConn(this.conn);
+      }
+      start(mimeCodec, url, videoTag){
+        this.conn.setUrl(url);
+        this.canvas.setMimeCodecAndTag(mimeCodec, videoTag);
+      }
+      tickOneSecond() {
+        this.ticksAccum++;
+        this.conn.tickOneSecond();
+        this.canvas.tickOneSecond();
+      }
+      resetAccum(){
+        this.conn.resetAccum();
+        this.canvas.resetAccum();
+      }
+      toString(){
+        var conn = this.conn.toString();
+        var canvas = this.canvas.toString();
+        return (
+        //status
+        this.ticksAccum + " secs"
+        + (!conn || conn.length == 0 ? "" : "\n" + conn)
+        + (!canvas || canvas.length == 0 ? "" : "\n" + canvas)
+        );
+      }
+    } //class TS.Video
+
+    //TS.Video.Conn
+    TS.Video.Conn = class Conn {
+      constructor() {
+        this.url          = null;
+        this.socket       = null;
+        this.canvas       = null; //TS.Video.Canvas
+        this.canvasPrepared = false;
+        this.connWaitingTicks = 0;
+        this.connecting   = false;
+        this.connected    = false;
+        this.errCount     = 0;
+        this.traffic      = new TS.Video.Conn.Traffic();
+      }
+      setCanvas(canvas){ //TS.Video.Canvas
+        this.canvas = canvas;
+      }
+      setUrl(url){
+        var fullyConfigBefore = this.shouldStartConnection();
+        this.url = url;
+        var fullyConfigAfter = this.shouldStartConnection();
+        if(!fullyConfigBefore && fullyConfigAfter && this.canvasPrepared){
+          this.connect_();
+        }
+      }
+      shouldStartConnection(){
+        return (!this.connecting && !this.connected && this.socket == null && this.url != null);
+      }
+      doAfterCanvasReadyForFirstRender(){ //called by canvas after MSE is ready for rendering
+        var preparedBefore = this.canvasPrepared;
+        this.canvasPrepared = true;
+        if(!preparedBefore && this.canvasPrepared && this.shouldStartConnection()){
+          this.connect_();
+        }
+      }
+      connect_(){
+        //console.log("ws.connect_('" + this.url + "')");
+        var self = this;
+        this.connecting  = true;
+        this.connected   = false;
+        this.connWaitingTicks = 0;
+        this.socket       = new WebSocket(this.url);
+        this.socket.binaryType = 'arraybuffer';
+        //onopen
+        this.socket.onopen = function (e) {
+          //console.log("ws.onopen");
+          self.connecting = false;
+          self.connected = true;
+          if(self.canvas != null){
+            self.canvas.doAfterConnStarted();
+          }
+        }
+        //onmessage
+        this.socket.onmessage = function (e) {
+          //console.log("ws.onmessage(" + e.data + " bytes)");
+          self.traffic.msgRcvd(e.data.byteLength);
+          if(self.canvas != null){
+            self.canvas.feedSegment(e.data);
+          }
+          //send echo
+          {
+            self.socket.send("{ echo " + e.data.byteLength + "bytes recvd }");
+            self.traffic.msgSent(e.data.byteLength);
+          }
+        }
+        //onclose
+        this.socket.onclose = function (e) {
+          //console.log("ws.onclose");
+          self.socket = null;
+          self.connecting = false;
+          self.connected = false;
+          self.connWaitingTicks = 0;
+          if (e.wasClean) {
+            //
+          } else {
+            self.errCount++;
+          }
+        }
+        //onerror
+        this.socket.onerror    = function (e) {
+          //console.log("ws.onerror");
+          self.socket = null;
+          self.connecting = false;
+          self.connected = false;
+          self.connWaitingTicks = 0;
+          self.errCount++;
+        }
+      }
+      tickOneSecond(){
+        //analyze connectivity-action
+        if(this.shouldStartConnection()){
+          this.connWaitingTicks++;
+          if(this.connWaitingTicks > 5){
+            this.connWaitingTicks = 0;
+            this.connect_();
+          }
+        } else {
+          this.connWaitingTicks = 0;
+        }
+      }
+      resetAccum(){
+        this.errCount     = 0;
+        this.traffic.resetAccum();
+      }
+      toString(){
+        var traffic = this.traffic.toString(" traffic");
+        return (
+        //status
+        (this.connecting ? "Connecting..." : this.connected ? "Connected" : "Disconnected")
+        //perSec
+        + (!this.connected
+          ?
+          ""
+          :
+          " PerSec:"
+          + (!traffic || traffic.length == 0 ? "" : traffic)
+          + " errs(" + this.errCount + ")"
+        ));
+      }
+    } //class TS.Video.Conn
+
+    //TS.Video.Conn.Traffic
+    TS.Video.Conn.Traffic = class Traffic {
+      constructor() {
+        this.sent = new TS.Video.Conn.Traffic.Flow();
+        this.rcvd = new TS.Video.Conn.Traffic.Flow();
+      }
+      msgSent(bytes){
+        this.sent.addMsg(bytes);
+      }
+      msgRcvd(bytes){
+        this.rcvd.addMsg(bytes);
+      }
+      resetAccum(){
+        this.sent.resetAccum();
+        this.rcvd.resetAccum();
+      }
+      toString(prefix){
+        var r = "";
+        var sent = this.sent.toString(" sent");
+        var rcvd = this.rcvd.toString(" rcvd");
+        r += (!sent || sent.length == 0 ? "" : (!r || r.length == 0 ? "" : ", ") + sent);
+        r += (!rcvd || rcvd.length == 0 ? "" : (!r || r.length == 0 ? "" : ", ") + rcvd);
+        return r;
+      }
+    } //TS.Video.Conn.Traffic
+
+    //TS.Video.Conn.Traffic.Flow
+    TS.Video.Conn.Traffic.Flow = class Flow {
+      constructor() {
+        this.count = 0;
+        this.bytesCount = 0;
+      }
+      addMsg(bytes){
+        this.count++;
+        this.bytesCount += bytes;
+      }
+      resetAccum(){
+        this.count     = 0;
+        this.bytesCount = 0;
+      }
+      toString(prefix){
+        return (this.count == 0 ? "" : prefix + "(" + this.count + " / " + (this.bytesCount / 1024).toFixed(1) + " KBs)");
+      }
+    } //class TS.Video.Conn.Traffic.Flow
+
+    //TS.Video.Canvas
+    TS.Video.Canvas = class Canvas {
+      constructor() {
+        this.tag    = null; //html 'video'-tag
+        this.conn   = null; //TS.Video.Conn
+        this.mimeCodec = null; //video/mp4; codecs="avc1.42E01E, mp4a.40.2"
+        this.mediaSrc = null;   //'video'-tag / MSE
+        this.sourceBuff = null; //'video'-tag / MSE / SrcBuff
+        //
+        this.videoUpdCount = 0;
+        this.buffFramesCount = 0;
+        this.buffBytesCount  = 0;
+        this.sourceBuffBussy = false; //note: using own lock-flag to simulatanious feed by conn and canvas event.
+        this.framesPend      = new Array();
+        this.videoFedAny     = false; //falg to determine if video must be reinited to be used
+        this.videoHdrsFed   = 0; //'ftyp' headers fed (count of mp4 files)
+        this.videoPaysFed = 0; //'moof' payload fed (count of mp4 fragments)
+      }
+      setConn(conn){ //TS.Video.Conn
+        this.conn = conn;
+      }
+      setMimeCodecAndTag(mimeCodec, videoTag){
+        var wasCompleted = (this.mimeCodec != null && this.tag != null);
+        this.mimeCodec = mimeCodec;
+        this.tag = videoTag;
+        if(this.tag != null){
+          //this.tag.style.position = "fixed"; //The element is positioned relative to the browser window
+          //this.tag.style.top = 0;
+          //this.tag.style.left = 0;
+          this.tag.addEventListener('canplay', this.videoTagEvent_);
+          this.tag.addEventListener('canplaythrough', this.videoTagEvent_);
+          this.tag.addEventListener('durationchange', this.videoTagEvent_);
+          this.tag.addEventListener('loadeddata', this.videoTagEvent_);
+          this.tag.addEventListener('progress', this.videoTagEvent_);
+          this.tag.addEventListener('waiting', this.videoTagEvent_);
+          this.tag.addEventListener('stalled', this.videoTagEvent_);
+          this.tag.addEventListener('pause', this.videoTagEvent_);
+          this.tag.addEventListener('play', this.videoTagEvent_);
+          this.tag.addEventListener('playing', this.videoTagEvent_);
+          this.tag.addEventListener('seeking', this.videoTagEvent_);
+          this.tag.addEventListener('emptied', this.videoTagEvent_);
+          this.tag.addEventListener('ended', this.videoTagEvent_);
+        }
+        //init if this was first time fully-configured
+        var isCompleted = (this.mimeCodec != null && this.tag != null);
+        if(!wasCompleted && isCompleted){
+          this.initVideoSrc_();
+        }
+      }
+      tickOneSecond(){
+        //
+      }
+      resetAccum(){
+        this.videoUpdCount = 0;
+        this.videoHdrsFed = 0;
+        this.videoPaysFed = 0;
+      }
+      doAfterConnStarted(){
+        //reinit video
+        //console.log("doAfterConnStarted");
+        if(this.videoFedAny && (this.mediaSrc != null || this.sourceBuff != null)){
+          this.uninitVideoSrc_();
+          if(this.tag != null){
+            this.tag.load();
+          }
+          this.initVideoSrc_();
+        }
+      }
+      feedSegment(payload){
+        //console.log("feedSegment");
+        if(this.sourceBuff != null){
+          this.buffFramesCount++;
+          this.buffBytesCount += payload.byteLength;
+          if(this.sourceBuffBussy){
+            //append to queue (currently bussy)
+            this.framesPend.push(payload);
+          } else if(this.framesPend.length == 0){
+            //empty queue, send inmediatly
+            this.mediaSrcFeedFrame_(payload, "live-appending");
+          } else {
+            //append to queue and send oldest
+            this.framesPend.push(payload);
+            //send oldest
+            this.mediaSrcFeedFrame_(this.framesPend.shift(), "queue-and-old-appending");
+          }
+        }
+      }
+      initVideoSrc_(){
+        //console.log("initVideoSrc_");
+        if(this.tag != null && this.mimeCodec != null){
+          if ('MediaSource' in window && MediaSource.isTypeSupported(this.mimeCodec)){
+            var self = this;
+            //creating the MediaSource, just with the "new" keyword, and the URL for it
+            //remove previous
+            this.uninitVideoSrc_();
+            //init new
+            this.mediaSrc = new MediaSource();
+            this.mediaSrc.addEventListener('sourceopen', function (event) {
+              //'sourceopen'
+              var self2 = self;
+              //console.log("mediaSrcOpened_");
+              var srcBuff       = self.mediaSrc.addSourceBuffer(self.mimeCodec);
+              srcBuff.addEventListener('updateend', function (event) {
+                //'updateend'
+                self2.videoUpdCount++;
+                //
+                if(self2.framesPend.length == 0 || self2.sourceBuff == null){
+                  //empty queue or bussy, do nothing
+                  self2.sourceBuffBussy = false;
+                } else {
+                  //keep lock and send oldest
+                  self2.mediaSrcFeedFrame_(self2.framesPend.shift(), "done-and-old-appending");
+                }
+              });
+              self.sourceBuff   = srcBuff;
+              //websocket
+              if(self.conn != null){
+                self.conn.doAfterCanvasReadyForFirstRender();
+              }
+            });
+            this.tag.src  = URL.createObjectURL(this.mediaSrc);
+          } else {
+            alert('Unsupported MIME type or codec: ' + this.mimeCodec);
+          }
+        }
+      }
+      uninitVideoSrc_(){
+        //console.log("uninitVideoSrc_");
+        this.videoFedAny     = false;
+        if(this.sourceBuff != null){
+          //this.sourceBuff.removeEventListener('updateend', this.mediaSrcUpdateEnded_(this), false);
+          this.sourceBuff = null;
+        }
+        if(this.mediaSrc != null){
+          //this.mediaSrc.removeEventListener('sourceopen', this.mediaSrcOpened_(this), false);
+          this.mediaSrc = null;
+        }
+        this.buffFramesCount = 0;
+        this.buffBytesCount  = 0;
+        this.framesPend      = new Array();
+      }
+      //mediaSrcOpened_(e) {
+      //
+      //}
+      //mediaSrcUpdateEnded_(e){
+        //
+      //}
+      mediaSrcFeedFrame_(oldest, logSufix){
+        var buff8 = new Uint8Array(oldest);
+        var boxType = String.fromCharCode(buff8[4]) + String.fromCharCode(buff8[5]) + String.fromCharCode(buff8[6]) + String.fromCharCode(buff8[7]);
+        //console.log("sourceBuff " + logSufix + "('" + boxType + "' " + oldest.byteLength + " bytes)");
+        if(boxType == "ftyp"){
+          this.videoHdrsFed++;
+        } else if(boxType == "moof"){
+          this.videoPaysFed++;
+        }
+        this.videoFedAny     = true;
+        this.buffFramesCount--;
+        this.buffBytesCount -= oldest.byteLength;
+        this.sourceBuffBussy = true;
+        this.sourceBuff.appendBuffer(oldest);
+      }
+      videoTagEvent_(e){
+        //console.log("videoEvent(" + e.type + ")");
+        //note: intended 'this' is not accesible in event-handlers
+        //if(e.type == "durationchange"){
+        //  console.log("durationchange(" + this.mediaSrc.duration + ")");
+        //}
+        //if(e.type == "canplay" || e.type == "canplaythrough"){
+        //  this.tag.play();
+        //}
+      }
+      toString(prefix){
+        return (
+          (this.sourceBuff != null ? " videoSrcOpened" : " videoSrcClosed")
+          + " updates(" + this.videoUpdCount + ")"
+          //fed
+          + (this.videoHdrsFed == 0 && this.videoPaysFed == 0
+              ?
+              ""
+              :
+              " Fed:" + (this.videoHdrsFed == 0 ? "" : " hdr(" + this.videoHdrsFed + ")")
+              + (this.videoPaysFed == 0 ? "" : " pay(" + this.videoPaysFed + ")")
+            )
+          //buff
+          + (this.buffFramesCount == 0 ? "" : "\nBuffs: " + this.buffFramesCount + " / " + (this.buffBytesCount / 1024).toFixed(1) + "KB")
+        );
+      }
+    } //class TS.Video.Conn.Traffic.Flow
+
+    //TS.Session
+    TS.Session = class Session {
+      constructor() {
+        this.conn    = new TS.Session.Conn();
+        this.conn.setListener(this);
+        //
+        this.sessionId  = ""; //current remote sessionId
+        this.runId      = ""; //remote server current runId
+        this.streams    = new Array(); //TS.Session.Stream
+      }
+      setUrl(url){
+        this.conn.setUrl(url);
+      }
+      tickOneSecond(){
+        this.conn.tickOneSecond();
+      }
+      resetAccum(){
+        this.conn.resetAccum();
+      }
+      toString(){
+        var streams = "";
+        var i; for(i = 0; i < this.streams.length; i++){
+          if(streams.length != 0){
+            streams += "\n";
+          }
+          streams += "   " + this.streams[i].toString();
+        }
+        return (
+          "'" + this.runId + "' / '" + this.sessionId + "'"
+          + "\n" + this.conn.toString()
+          + (streams.length == 0 ? "" : "\n" + streams)
+        );
+      }
+      addStream(runId, grpId, grpName, streamId, streamName){
+        var stream = new TS.Session.Stream();
+        stream.runId = runId;
+        stream.grpId = grpId;
+        stream.grpName = grpName;
+        stream.uid = streamId;
+        stream.name = streamName;
+        this.streams.push(stream);
+        return stream;
+      }
+      getStream(runId, grpId, streamId){
+        var i; for(i = 0; i < this.streams.length; i++){
+          var stream = this.streams[i];
+          if(stream.runId === runId && stream.grpId === grpId && stream.uid === streamId){
+            return stream;
+          }
+        }
+        return null;
+      }
+      removeStream(runId, grpId, streamId){
+        var i; for(i = 0; i < this.streams.length; i++){
+          var stream = this.streams[i];
+          if(stream.runId === runId && stream.grpId === grpId && stream.uid === streamId){
+            this.streams.splice(i, 1);
+            break;
+          }
+        }
+      }
+      sessionSyncMsgRcvd(json){
+        if(json.sessionId && json.sessionId.length != 0 && this.sessionId !== json.sessionId){
+          this.sessionId = json.sessionId; console.log("sessionId: '" + this.sessionId + "'");
+        }
+        if(json.runId && json.runId.length != 0 && this.runId !== json.runId){
+          this.runId = json.runId; console.log("runId: '" + this.runId + "'");
+        }
+        if(json.streamsUpds){
+          this.sessionSyncServiceUpd_(json.streamsUpds, true, "_", 1, "_");
+        }
+      }
+      sessionSyncServiceUpd_(json, isRootNode, rootRunId, depthLvl, basePath){
+        var runId = (json.runId ? json.runId : "");
+        if(json.grps){
+          var i; for(i = 0; i < json.grps.length; i++){
+            var grp = json.grps[i];
+            var grpId = (grp.uid ? grp.uid : "");
+            var grpName = (grp.name ? grp.name : "");
+            if(grp.streams){
+              var i2; for(i2 = 0; i2 < grp.streams.length; i2++){
+                var strm = grp.streams[i2];
+                var strmAction = (strm.action ? strm.action : ""); //'new', 'upd', 'rmv'
+                if(!strm.desc){
+                  console.error("expected 'streams/desc' node");
+                } else {
+                  var strmDesc = strm.desc;
+                  var strmId = (strmDesc.uid ? strmDesc.uid : "");
+                  var strmName = (strmDesc.name ? strmDesc.name : "");
+                  if(strm.action === "new"){
+                    if(this.getStream(runId, grpId, strmId)){
+                      console.error("stream " + strmId + "@" + grpId +"@" + runId + " already added (unsynced session?).");
+                    } else {
+                      var dst = this.addStream(runId, grpId, grpName, strmId, strmName);
+                      console.log("stream " + strmId + "@" + grpId +"@" + runId + " added.");
+                      dst.syncFirst(strmDesc, rootRunId, depthLvl, basePath + "/" + grpId + "/" + strmId)
+                    }
+                  } else if(strm.action === "upd"){
+                    var dst = this.getStream(runId, grpId, strmId);
+                    if(!dst){
+                      console.error("stream " + strmId + "@" + grpId +"@" + runId + " not-found, can't update (unsynced session?).");
+                    } else {
+                      console.log("stream " + strmId + "@" + grpId +"@" + runId + " updated.");
+                      dst.syncWithUpd(strmDesc, rootRunId, depthLvl, basePath + "/" + grpId + "/" + strmId)
+                    }
+                  } else if(strm.action === "rmv"){
+                    var dst = this.getStream(runId, grpId, strmId);
+                    if(!dst){
+                      console.error("stream " + strmId + "@" + grpId +"@" + runId + " not-found, can't remove (unsynced session?).");
+                    } else {
+                      console.log("stream " + strmId + "@" + grpId +"@" + runId + "  removed.");
+                      this.removeStream(runId, grpId, strmId);
+                    }
+                  } else {
+                    console.error("unsupported strmAction('" + strmAction + "')");
+                  }
+                }
+              }
+            }
+          }
+        }
+        if(json.subServices){
+          var i; for(i = 0; i < json.subServices.length; i++){
+            this.sessionSyncServiceUpd_(json.subServices[i], false, runId, depthLvl + 1, (isRootNode ? runId : basePath + "/" + runId));
+          }
+        }
+      }
+    } //class TS.Session
+
+    //TS.Session.Stream
+    TS.Session.Stream = class Stream {
+      constructor() {
+        this.runId        = ""; //root runId (stream source)
+        this.grpId        = ""; //groupId
+        this.grpName      = ""; //groupName
+        this.uid          = ""; //streamId
+        this.name         = ""; //streamName
+        this.versions     = new Array(); //TS.Session.Stream.Version
+      }
+      getVersion(versionId){
+        var i; for(i = 0; i < this.versions.length; i++){
+          var version = this.versions[i];
+          if(version.uid === versionId){
+            return version;
+          }
+        }
+        return null;
+      }
+      syncFirst(json, rootRunId, depthLvl, basePath){
+        //apply update
+        if(json.versions){
+          var i; for(i = 0; i < json.versions.length; i++){
+            var version = json.versions[i];
+            var verId = (version.uid ? version.uid : "");
+            var verName = (version.name ? version.name : "");
+            var dst = this.getVersion(verId);
+            if(dst){
+              dst.syncApply(version, rootRunId, depthLvl, basePath + "/" + verId);
+            } else {
+              dst = new TS.Session.Stream.Version();
+              dst.syncFirst(version, rootRunId, depthLvl, basePath + "/" + verId);
+              this.versions.push(dst);
+            }
+          }
+        }
+      }
+      syncWithUpd(json, rootRunId, depthLvl, basePath){
+        var r = "";
+        //flag all version as not-synced
+        {
+          var i; for(i = 0; i < this.versions.length; i++){
+            var version = this.versions[i];
+            version.syncStart();
+          }
+        }
+        //apply update
+        if(json.versions){
+          var i; for(i = 0; i < json.versions.length; i++){
+            var version = json.versions[i];
+            var verId = (version.uid ? version.uid : "");
+            var verName = (version.name ? version.name : "");
+            var dst = this.getVersion(verId);
+            if(dst){
+              r += dst.syncApply(version, rootRunId, depthLvl, basePath + "/" + verId);
+            } else {
+              dst = new TS.Session.Stream.Version();
+              dst.syncFirst(version, rootRunId, depthLvl, basePath + "/" + verId);
+              this.versions.push(dst);
+              r += "[stream/new-version]";
+            }
+          }
+        }
+        //remove unsynced
+        {
+          var i; for(i = 0; i < this.versions.length; i++){
+            var version = this.versions[i];
+            if(!version.synced){
+              //remove
+              this.versions.splice(i, 1);
+              r += "[stream/removed-version]";
+            } else {
+              version.syncEnd();
+            }
+          }
+        }
+        if(r.length != 0){
+          console.log(
+            "Stream-updated " + version.uid + "@" + this.uid + "@" + this.grpId + "@" + this.runId + " ('" + version.name + "' @ '" + this.name + "' @ '" + this.name + "'):"
+            + "\n   " + r
+            + "\n   " + this.toString()
+          );
+        }
+      }
+      toString(){
+        var versions = "";
+        var i; for(i = 0; i < this.versions.length; i++){
+          if(versions.length != 0){
+            versions += "\n";
+          }
+          versions += "      " + this.versions[i].toString();
+        }
+        return (
+          "stream: " + this.uid + "@" + this.grpId + " ('" + this.name +"' @ '" + this.grpName + "')"
+          + (versions.length == 0 ? "" : "\n" + versions)
+        );
+      }
+    } //class TS.Session.Stream
+
+    //TS.Session.Stream.Version
+    TS.Session.Stream.Version = class Version {
+      constructor() {
+        this.uid       = ""; //versionId
+        this.name      = ""; //versionName
+        this.paths     = new Array(); //TS.Session.Stream.Version.Path
+        this.synced    = true; //flag to determine if must be removed
+      }
+      syncStart(){
+        var i; for(i = 0; i < this.paths.length; i++){
+          var path = this.paths[i];
+          path.syncStart();
+        }
+        this.synced = false;
+      }
+      syncFirst(version, rootRunId, depthLvl, basePath){
+        var verId = (version.uid ? version.uid : "");
+        var verName = (version.name ? version.name : "");
+        this.uid = verId;
+        this.name = verName;
+        {
+          var path = new TS.Session.Stream.Version.Path();
+          path.syncFirst(version, rootRunId, depthLvl, basePath);
+          this.paths.push(path);
+        }
+        this.synced = true;
+      }
+      syncApply(version, rootRunId, depthLvl, basePath){
+        var r = "";
+        var verId = (version.uid ? version.uid : "");
+        var verName = (version.name ? version.name : "");
+        if(this.name !== verName){
+          this.name = verName;
+          r += "[version/name]";
+        }
+        {
+          var fnd = false;
+          var i; for(i = 0; i < this.paths.length; i++){
+            var path = this.paths[i];
+            if(path.depth == depthLvl && path.fullPath === basePath){
+              r += path.syncApply(version, rootRunId, depthLvl, basePath);
+              fnd = true;
+              break;
+            }
+          }
+          //create
+          if(!fnd){
+            console.log("Stream-version-path added '" + this.uid + "' / '" + this.name + "': " + depthLvl + " '" + basePath + "'");
+            path = new TS.Session.Stream.Version.Path();
+            path.syncFirst(version, rootRunId, depthLvl, basePath);
+            this.paths.push(path);
+            r += "[version/new-path]";
+          }
+        }
+        this.synced = true;
+        return r;
+      }
+      syncEnd(){
+        var i; for(i = 0; i < this.paths.length; i++){
+          var path = this.paths[i];
+          if(!path.synced){
+            //remove
+            console.log("Stream-version-path removed '" + this.uid + "' / '" + this.name + "': " + path.depth + " '" + path.fullPath + "'");
+            this.paths.splice(i, 1);
+          } else {
+            path.syncEnd();
+          }
+        }
+        this.synced = true;
+      }
+      toString(){
+        var paths = "";
+        var i; for(i = 0; i < this.paths.length; i++){
+          if(paths.length != 0){
+            paths += "\n";
+          }
+          paths += "         " + this.paths[i].toString();
+        }
+        return (
+          "version: '" + this.uid + "'"
+          + (paths.length == 0 ? "" : "\n" + paths)
+        );
+      }
+    } //class TS.Session.Stream.Version
+
+    //TS.Session.Stream.Version.Path
+    TS.Session.Stream.Version.Path = class Path {
+      constructor() {
+        this.runId     = ""; //runId capable to reach this version
+        this.depth     = 0;  //depth of this path (higher depth is larger path)
+        this.fullPath  = ""; //path respresentation
+        this.live      = new TS.Session.Stream.Version.Desc();
+        this.storage   = new TS.Session.Stream.Version.Desc();
+        this.synced    = true; //flag to determine if must be removed
+      }
+      syncStart(){
+        this.synced    = false;
+      }
+      syncFirst(version, rootRunId, depthLvl, basePath){
+        this.runId = rootRunId;
+        this.depth = depthLvl;
+        this.fullPath = basePath;
+        if(version.live){
+          this.live.syncFirst(version.live);
+        }
+        if(version.storage){
+          this.storage.syncFirst(version.storage);
+        }
+        this.synced = true;
+      }
+      syncApply(version, rootRunId, depthLvl, basePath){
+        var r = "";
+        if(version.live){
+            r += this.live.syncApply(version.live, "live");
+        }
+        if(version.storage){
+            r += this.storage.syncApply(version.storage, "strg");
+        }
+        this.synced = true;
+        return r;
+      }
+      syncEnd(){
+        this.synced = true;
+      }
+      toString(){
+        return (
+          "path: lvl-" + this.depth + ": '" + this.fullPath + "'"
+           + "\n            live: " + this.live.toString()
+           + "\n            strg: " + this.storage.toString()
+        );
+      }
+    } //class TS.Session.Stream.Version.Path
+
+    //TS.Session.Stream.Version.Desc
+    TS.Session.Stream.Version.Desc = class Desc {
+      constructor() {
+        this.isOnline  = 0;  //is currently online
+        this.width     = 0;
+        this.height    = 0;
+        this.fpsMax    = 0;
+        this.isFixedFps = false;
+      }
+      syncFirst(desc){
+        var props      = desc.props;
+        this.isOnline  = (desc.isOnline ? desc.isOnline : false);
+        this.width     = (props.w ? props.w : 0);
+        this.height    = (props.h ? props.h : 0);
+        this.fpsMax    = (props.fpsMax ? props.fpsMax : 0);
+        this.isFixedFps = (props.isFixedFps ? props.isFixedFps : 0);
+        //sps: avcProfile, profCompat, avcLevel, chromaFmt, bitDepthLuma, bitDepthChroma;
+      }
+      syncApply(version, name){
+        var r = "";
+        var props     = desc.props;
+        var isOnline  = (desc.isOnline ? desc.isOnline : false);
+        var width     = (props.w ? props.w : 0);
+        var height    = (props.h ? props.h : 0);
+        var fpsMax    = (props.fpsMax ? props.fpsMax : 0);
+        var isFixedFps = (props.isFixedFps ? props.isFixedFps : 0);
+        if(this.isOnline != isOnline){ this.isOnline = isOnline; r += "["+name+"/isOnline]"; }
+        if(this.width != width){ this.width = width; r += "["+name+"/width]"; }
+        if(this.height != height){ this.height = height; r += "["+name+"/height]"; }
+        if(this.fpsMax != fpsMax){ this.fpsMax = fpsMax; r += "["+name+"/fpsMax]"; }
+        if(this.isFixedFps != isOnline){ this.isFixedFps = isFixedFps; r += "["+name+"/isFixedFps]"; }
+        //sps: avcProfile, profCompat, avcLevel, chromaFmt, bitDepthLuma, bitDepthChroma;
+        return r;
+      }
+      toString(){
+        return (
+          (this.isOnline ? "online" : "offline")
+          + (this.isOnline ? " " + (this.width + "x" + this.height) + "@" + this.fpsMax + "fps" + (!this.isFixedFps ? "-non-fixed" : "") : "")
+        );
+      }
+    } //class TS.Session.Stream.Version.Desc
+
+    //TS.Session.Conn
+    TS.Session.Conn = class Conn {
+      constructor() {
+        this.listener     = null; //obj, with method 'sessionSyncMsgRcvd(jsonObj)'
+        this.url          = null;
+        this.socket       = null;
+        this.connWaitingTicks = 0;
+        this.connecting   = false;
+        this.connected    = false;
+        this.errCount     = 0;
+        this.traffic      = new TS.Video.Conn.Traffic();
+      }
+      setListener(obj){
+        this.listener     = obj;
+      }
+      setUrl(url){
+        var fullyConfigBefore = this.shouldStartConnection();
+        this.url = url;
+        var fullyConfigAfter = this.shouldStartConnection();
+        if(!fullyConfigBefore && fullyConfigAfter){
+          this.connect_();
+        }
+      }
+      shouldStartConnection(){
+        return (!this.connecting && !this.connected && this.socket == null && this.url != null);
+      }
+      connect_(){
+        //console.log("ws.connect_('" + this.url + "')");
+        var self = this;
+        this.connecting  = true;
+        this.connected   = false;
+        this.connWaitingTicks = 0;
+        this.socket       = new WebSocket(this.url);
+        //onopen
+        this.socket.onopen = function (e) {
+          //console.log("ws.onopen");
+          self.connecting = false;
+          self.connected = true;
+        }
+        //onmessage
+        this.socket.onmessage = function (e) {
+          //var jsonString = JSON.stringify(e.data);
+          console.log("ws.onmessage(" + e.data.length + " bytes)");
+          self.traffic.msgRcvd(e.data.length);
+          if(self.listener != null){
+            self.listener.sessionSyncMsgRcvd(JSON.parse(e.data));
+          }
+        }
+        //onclose
+        this.socket.onclose = function (e) {
+          //console.log("ws.onclose");
+          self.socket = null;
+          self.connecting = false;
+          self.connected = false;
+          self.connWaitingTicks = 0;
+          if (e.wasClean) {
+            //
+          } else {
+            self.errCount++;
+          }
+        }
+        //onerror
+        this.socket.onerror    = function (e) {
+          //console.log("ws.onerror");
+          self.socket = null;
+          self.connecting = false;
+          self.connected = false;
+          self.connWaitingTicks = 0;
+          self.errCount++;
+        }
+      }
+      tickOneSecond(){
+        //analyze connectivity-action
+        if(this.shouldStartConnection()){
+          this.connWaitingTicks++;
+          if(this.connWaitingTicks > 5){
+            this.connWaitingTicks = 0;
+            this.connect_();
+          }
+        } else {
+          this.connWaitingTicks = 0;
+        }
+      }
+      resetAccum(){
+        this.errCount     = 0;
+        this.traffic.resetAccum();
+      }
+      toString(){
+        var traffic = this.traffic.toString(" traffic");
+        return (
+        //status
+        (this.connecting ? "Connecting..." : this.connected ? "Connected" : "Disconnected")
+        //perSec
+        + (!this.connected
+          ?
+          ""
+          :
+          " PerSec:"
+          + (!traffic || traffic.length == 0 ? "" : traffic)
+          + " errs(" + this.errCount + ")"
+        ));
+      }
+    } //class TS.Session.Conn
+
+    //global vars
+    var canvasTag      = null;
+    var outTag         = null;
+    var timerId        = null;
+    var session        = null;
+    var players        = new Array();
+
+    function windowResized(e){
+      var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+      var height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+      console.log("resized( " + width + ",  " + height + " )");
+    }
+    //timer
+    function tickSecond() {
+      var str = "";
+      if(players != null){
+        var i; for(i = 0; i < players.length; i++){
+          var player = players[i];
+          player.tickOneSecond();
+          var str2 = player.toString();
+          if(str2 && str2.length != 0){
+            str += (str && str.length != 0 ? "\n" : "") + str2;
+          }
+          player.resetAccum();
+        }
+      }
+      if(session != null){
+        session.tickOneSecond();
+        var str2 = session.toString();
+        if(str2 && str2.length != 0){
+          str += (str && str.length != 0 ? "\n\n" : "") + str2;
+        }
+        session.resetAccum();
+      }
+      if(outTag != null){
+        outTag.innerText = str; //.replace(" ", "&nbsp;");
+      }
+    }
+
+    function initApp() {
+      var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+      var height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+      console.log("initApp( " + width + ",  " + height + " )");
+      //
+      window.addEventListener('resize', windowResized);
+      //
+      canvasTag        = document.getElementById("ts-rootCanvas");
+      outTag           = document.getElementById("ts-status");
+      outTag.innerText = "Loading...";
+      timerId          = setInterval(tickSecond, 1000);
+      //player(s)
+      {
+        var mimeCodec    = 'video/mp4; codecs="avc1.42E01E"'; //video/mp4; codecs="avc1.42E01E, mp4a.40.2"
+        var url          = "ws://127.0.0.1:30443/stream.mp4?src=_/*/*/1-high&secsPerStream=3&skipFramesMax=2&mp4FullyFrag=1&mp4MultiFiles=1";
+        var videoTagN    = document.createElement('video');
+        var videoTag     = canvasTag.appendChild(videoTagN);
+        if(videoTag != null){
+          var player = new TS.Video();
+          videoTag.style.width = "100%";
+          videoTag.style.whiteSpace = "nowrap";
+          videoTag.style.overflow = "hidden";
+          videoTag.style.float = "right";
+          videoTag.muted = true;
+          videoTag.autoplay = true;
+          player.start(mimeCodec, url, videoTag);
+          players.push(player);
+        }
+      }
+      /*{
+        var url = "ws://127.0.0.1:30443/session/start"
+        session = new TS.Session();
+        session.setUrl(url);
+      }*/
+    }
+  </script>
+</head>
+<body onload="initApp()">
+  <div style="display:inline-block;"><div id="ts-rootCanvas" style="white-space:nowrap;float:left;"></div><font id="ts-status" style="white-space:nowrap;float:left;visibility:hidden;">Uninited</font></div>
+</body>
+</html>
