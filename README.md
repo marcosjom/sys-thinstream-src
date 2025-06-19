@@ -1,11 +1,8 @@
 # Moved to Github
 
-This repository was moved from another service to Github.
+This repository was moved to Github. My original repository has >4 years of activity from 2020-09-28 to 2024-11-18:
 
-The original repository has activity:
-
-- from  2020-09-28
-- up to 2024-11-18
+https://bitbucket.org/marcosjom/thinstream-src/
 
 # sys-thinstream-src
 
