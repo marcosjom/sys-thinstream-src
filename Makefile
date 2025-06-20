@@ -6,22 +6,22 @@ LOCAL_PATH := $(call my-dir)
 #-------------
 include $(CLEAR_VARS)
 LOCAL_MODULE := pdfium-prebuilt
-LOCAL_SRC_FILES := ../../../CltNicaraguaBinary/sys-auframework/lib-auframework-app-src/src/pdfium_android/$(TARGET_ARCH_ABI)/lib.unstripped/libpdfium.cr.so
+LOCAL_SRC_FILES := ../../sys-auframework/lib-auframework-app-src/src/pdfium_android/$(TARGET_ARCH_ABI)/lib.unstripped/libpdfium.cr.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := icuuc-prebuilt
-LOCAL_SRC_FILES := ../../../CltNicaraguaBinary/sys-auframework/lib-auframework-app-src/src/pdfium_android/$(TARGET_ARCH_ABI)/lib.unstripped/libicuuc.cr.so
+LOCAL_SRC_FILES := ../../sys-auframework/lib-auframework-app-src/src/pdfium_android/$(TARGET_ARCH_ABI)/lib.unstripped/libicuuc.cr.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := chrome_zlib-prebuilt
-LOCAL_SRC_FILES := ../../../CltNicaraguaBinary/sys-auframework/lib-auframework-app-src/src/pdfium_android/$(TARGET_ARCH_ABI)/lib.unstripped/libchrome_zlib.cr.so
+LOCAL_SRC_FILES := ../../sys-auframework/lib-auframework-app-src/src/pdfium_android/$(TARGET_ARCH_ABI)/lib.unstripped/libchrome_zlib.cr.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := cpp-prebuilt
-LOCAL_SRC_FILES := ../../../CltNicaraguaBinary/sys-auframework/lib-auframework-app-src/src/pdfium_android/$(TARGET_ARCH_ABI)/lib.unstripped/libc++.cr.so
+LOCAL_SRC_FILES := ../../sys-auframework/lib-auframework-app-src/src/pdfium_android/$(TARGET_ARCH_ABI)/lib.unstripped/libc++.cr.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 #Configure
@@ -29,30 +29,30 @@ NB_CFG_PRINT_INTERNALS := 1
 NB_CFG_PRINT_INFO      := 0
 
 #Import functions
-include ../../../CltNicaraguaBinary/sys-nbframework/lib-nbframework-src/MakefileFuncs.mk
+include ../../sys-nbframework/sys-nbframework-src/MakefileFuncs.mk
 
 #Init workspace
 $(eval $(call nbCall,nbInitWorkspace))
 
 #Import projects
-include ../../../CltNicaraguaBinary/sys-nbframework/lib-nbframework-src/MakefileProject.mk
+include ../../sys-nbframework/sys-nbframework-src/MakefileProject.mk
 
 #Specific OS
 ifneq (,$(findstring Android,$(NB_CFG_HOST)))
   #Android
-  include ../../../CltNicaraguaBinary/sys-auframework/lib-auframework-src/MakefileProject.mk
+  include ../../sys-auframework/lib-auframework-src/MakefileProject.mk
 endif
 
 #Specific OS
 ifneq (,$(findstring Android,$(NB_CFG_HOST)))
   #Android
-  include ../../../CltNicaraguaBinary/sys-auframework/lib-auframework-media-src/MakefileProject.mk
+  include ../../sys-auframework/lib-auframework-media-src/MakefileProject.mk
 endif
 
 #Specific OS
 ifneq (,$(findstring Android,$(NB_CFG_HOST)))
   #Android
-  include ../../../CltNicaraguaBinary/sys-auframework/lib-auframework-app-src/MakefileProject.mk
+  include ../../sys-auframework/lib-auframework-app-src/MakefileProject.mk
 endif
 
 #Project

@@ -166,7 +166,7 @@ const STNBStructMap* TSServerStatsThreadState_getSharedStructMap(void){
         NBStructMap_addStrPtrM(map, s, name);
         NBStructMap_addStrPtrM(map, s, firstKnownMethod);
         NBStructMap_addEnumM(map, s, statsLevel, NBLogLevel_getSharedEnumMap());
-        NBStructMap_addStructM(map, s, stats, NBProcessStatsState_getSharedStructMap());
+        NBStructMap_addStructM(map, s, stats, NBMngrProcessStatsState_getSharedStructMap());
         TSServerStatsThreadState_sharedStructMap.map = map;
     }
     NBMngrStructMaps_unlock(&TSServerStatsThreadState_sharedStructMap);
@@ -182,7 +182,7 @@ void TSServerStatsThreadState_init(STTSServerStatsThreadState* obj){
 
 #ifdef CONFIG_NB_INCLUDE_THREADS_METRICS
 void TSServerStatsThreadState_release(STTSServerStatsThreadState* obj){
-    NBProcessStatsState_release(&obj->stats);
+    NBMngrProcessStatsState_release(&obj->stats);
 }
 #endif
 
@@ -199,7 +199,7 @@ const STNBStructMap* TSServerStatsProcessState_getSharedStructMap(void){
         STTSServerStatsProcessState s;
         STNBStructMap* map = NBMngrStructMaps_allocTypeM(STTSServerStatsProcessState);
         NBStructMap_init(map, sizeof(s));
-        NBStructMap_addStructM(map, s, stats, NBProcessStatsState_getSharedStructMap());
+        NBStructMap_addStructM(map, s, stats, NBMngrProcessStatsState_getSharedStructMap());
         NBStructMap_addPtrToArrayOfStructM(map, s, threads, threadsSz, ENNBStructMapSign_Unsigned, TSServerStatsThreadState_getSharedStructMap());
         TSServerStatsProcessState_sharedStructMap.map = map;
     }
@@ -216,7 +216,7 @@ void TSServerStatsProcessState_init(STTSServerStatsProcessState* obj){
 
 #ifdef CONFIG_NB_INCLUDE_THREADS_METRICS
 void TSServerStatsProcessState_release(STTSServerStatsProcessState* obj){
-    NBProcessStatsState_release(&obj->stats);
+    NBMngrProcessStatsState_release(&obj->stats);
     //threads
     if(obj->threads != NULL){
         UI32 i; for(i = 0; i < obj->threadsSz; i++){

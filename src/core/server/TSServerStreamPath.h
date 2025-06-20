@@ -8,7 +8,7 @@
 #ifndef TSServerStreamPath_h
 #define TSServerStreamPath_h
 
-#include "nb/core/NBProcess.h"
+#include "nb/core/NBMngrProcess.h"
 #include "nb/core/NBRange.h"
 
 #ifdef __cplusplus

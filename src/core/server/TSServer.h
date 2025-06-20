@@ -8,7 +8,7 @@
 #ifndef TSServer_h
 #define TSServer_h
 
-#include "nb/core/NBProcess.h"
+#include "nb/core/NBMngrProcess.h"
 #include "nb/core/NBString.h"
 #include "nb/core/NBLog.h"
 #include "nb/core/NBDataPtrsStats.h"

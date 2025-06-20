@@ -1,0 +1,67 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "thinstream-core", "thinstream-core\thinstream-core.vcxproj", "{B7F4BE5F-5BA3-45A1-898A-8B5D333B3274}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nbframework", "..\..\..\..\sys-nbframework\sys-nbframework-src\projects\visual-studio\nbframework\nbframework.vcxproj", "{7FDDBC68-B369-4346-BA6E-7C1CE2FF732F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "thinstream-server", "thinstream-server\thinstream-server.vcxproj", "{A7158489-FB74-4A70-9685-360E32694AA2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B7F4BE5F-5BA3-45A1-898A-8B5D333B3274} = {B7F4BE5F-5BA3-45A1-898A-8B5D333B3274}
+		{7FDDBC68-B369-4346-BA6E-7C1CE2FF732F} = {7FDDBC68-B369-4346-BA6E-7C1CE2FF732F}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packages", "Packages", "{D1116D1B-E6C9-4FD7-B20E-90BEA53091E5}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\sys-thinstream-res\devtools.config.json = ..\..\..\sys-thinstream-res\devtools.config.json
+		..\..\Makefile = ..\..\Makefile
+		..\..\MakefileProject.mk = ..\..\MakefileProject.mk
+		..\..\..\sys-thinstream-res\thinstream.cfg.app.json = ..\..\..\sys-thinstream-res\thinstream.cfg.app.json
+		..\..\..\sys-thinstream-res\thinstream.cfg.app.locale.json = ..\..\..\sys-thinstream-res\thinstream.cfg.app.locale.json
+		..\..\..\sys-thinstream-res\thinstream.cfg.server.dbg.json = ..\..\..\sys-thinstream-res\thinstream.cfg.server.dbg.json
+		..\..\..\sys-thinstream-res\thinstream.cfg.server.json = ..\..\..\sys-thinstream-res\thinstream.cfg.server.json
+		..\..\..\sys-thinstream-res\thinstream.cfg.server.locale.json = ..\..\..\sys-thinstream-res\thinstream.cfg.server.locale.json
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B7F4BE5F-5BA3-45A1-898A-8B5D333B3274}.Debug|x64.ActiveCfg = Debug|x64
+		{B7F4BE5F-5BA3-45A1-898A-8B5D333B3274}.Debug|x64.Build.0 = Debug|x64
+		{B7F4BE5F-5BA3-45A1-898A-8B5D333B3274}.Debug|x86.ActiveCfg = Debug|Win32
+		{B7F4BE5F-5BA3-45A1-898A-8B5D333B3274}.Debug|x86.Build.0 = Debug|Win32
+		{B7F4BE5F-5BA3-45A1-898A-8B5D333B3274}.Release|x64.ActiveCfg = Release|x64
+		{B7F4BE5F-5BA3-45A1-898A-8B5D333B3274}.Release|x64.Build.0 = Release|x64
+		{B7F4BE5F-5BA3-45A1-898A-8B5D333B3274}.Release|x86.ActiveCfg = Release|Win32
+		{B7F4BE5F-5BA3-45A1-898A-8B5D333B3274}.Release|x86.Build.0 = Release|Win32
+		{7FDDBC68-B369-4346-BA6E-7C1CE2FF732F}.Debug|x64.ActiveCfg = Debug|x64
+		{7FDDBC68-B369-4346-BA6E-7C1CE2FF732F}.Debug|x64.Build.0 = Debug|x64
+		{7FDDBC68-B369-4346-BA6E-7C1CE2FF732F}.Debug|x86.ActiveCfg = Debug|Win32
+		{7FDDBC68-B369-4346-BA6E-7C1CE2FF732F}.Debug|x86.Build.0 = Debug|Win32
+		{7FDDBC68-B369-4346-BA6E-7C1CE2FF732F}.Release|x64.ActiveCfg = Release|x64
+		{7FDDBC68-B369-4346-BA6E-7C1CE2FF732F}.Release|x64.Build.0 = Release|x64
+		{7FDDBC68-B369-4346-BA6E-7C1CE2FF732F}.Release|x86.ActiveCfg = Release|Win32
+		{7FDDBC68-B369-4346-BA6E-7C1CE2FF732F}.Release|x86.Build.0 = Release|Win32
+		{A7158489-FB74-4A70-9685-360E32694AA2}.Debug|x64.ActiveCfg = Debug|x64
+		{A7158489-FB74-4A70-9685-360E32694AA2}.Debug|x64.Build.0 = Debug|x64
+		{A7158489-FB74-4A70-9685-360E32694AA2}.Debug|x86.ActiveCfg = Debug|Win32
+		{A7158489-FB74-4A70-9685-360E32694AA2}.Debug|x86.Build.0 = Debug|Win32
+		{A7158489-FB74-4A70-9685-360E32694AA2}.Release|x64.ActiveCfg = Release|x64
+		{A7158489-FB74-4A70-9685-360E32694AA2}.Release|x64.Build.0 = Release|x64
+		{A7158489-FB74-4A70-9685-360E32694AA2}.Release|x86.ActiveCfg = Release|Win32
+		{A7158489-FB74-4A70-9685-360E32694AA2}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F24BBF1D-9D88-41CD-AEDE-3E8F9D35B120}
+	EndGlobalSection
+EndGlobal

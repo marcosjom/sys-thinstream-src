@@ -33,13 +33,13 @@ extern "C" {
 		const char*					name;						
 		const char*					firstKnownMethod;
 		ENNBLogLevel				statsLevel;
-		STNBProcessStatsState	stats;
+		STNBMngrProcessStatsState	stats;
 	} STTSClientStatsThreadState;
 #	endif
 
 #	ifdef CONFIG_NB_INCLUDE_THREADS_METRICS
 	typedef struct STTSClientStatsProcessState_ {
-		STNBProcessStatsState		stats;
+		STNBMngrProcessStatsState		stats;
 		STTSClientStatsThreadState*		threads;
 		UI32							threadsSz;
 	} STTSClientStatsProcessState;

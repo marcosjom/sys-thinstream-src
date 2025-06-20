@@ -45,7 +45,7 @@ extern "C" {
         const char*                 name;
         const char*                 firstKnownMethod;
         ENNBLogLevel                statsLevel;
-        STNBProcessStatsState   stats;
+        STNBMngrProcessStatsState   stats;
     } STTSServerStatsThreadState;
 #   endif
 
@@ -60,7 +60,7 @@ extern "C" {
 
 #   ifdef CONFIG_NB_INCLUDE_THREADS_METRICS
     typedef struct STTSServerStatsProcessState_ {
-        STNBProcessStatsState       stats;
+        STNBMngrProcessStatsState       stats;
         STTSServerStatsThreadState*     threads;
         UI32                            threadsSz;
     } STTSServerStatsProcessState;

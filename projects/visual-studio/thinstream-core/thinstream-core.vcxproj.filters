@@ -1,0 +1,374 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="config">
+      <UniqueIdentifier>{53e19b78-18d6-4b5e-89be-031d687c3e7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="server">
+      <UniqueIdentifier>{0d33c891-fa9d-442e-ba3e-0ec385e9c110}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="client">
+      <UniqueIdentifier>{71f18895-903b-420d-9f8f-2dad7c28b71f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="logic">
+      <UniqueIdentifier>{6189be70-ae7b-42ef-ad70-9375de235403}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\core\config\TSCfg.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\config\TSCfgApplePushServices.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\config\TSCfgContext.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\config\TSCfgCypher.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\config\TSCfgFilesystem.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\config\TSCfgFirebaseCM.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\config\TSCfgLocale.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\config\TSCfgMail.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\config\TSCfgOutServer.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\config\TSCfgRestApiClt.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\config\TSCfgServer.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\config\TSCfgStream.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\config\TSCfgStreamVersion.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\config\TSCfgTelemetry.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\config\TSCfgThreads.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\client\TSClient.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\client\TSClientChannel.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\client\TSClientChannelRequest.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\client\TSClientOpq.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSCertificate.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSClientRequester.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSClientRequesterConn.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSClientRequesterConnStats.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSClientRequesterDevice.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSClientRoot.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSDevice.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSDeviceLocal.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSFile.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSHello.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSIdentityLocal.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSNotifications.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSStreamBuilder.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSStreamDefs.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSStreamsSessionMsg.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSStreamsStorage.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSStreamsStorageStats.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSStreamStorage.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSStreamStorageFiles.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSStreamStorageFilesGrp.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSStreamUnit.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\logic\TSStreamVersionStorage.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\server\TSApiRestClt.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\server\TSApplePushServicesClt.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\server\TSFirebaseCMClt.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\server\TSMailClt.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\server\TSNotifsList.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\server\TSServer.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\server\TSServerLogicClt.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\server\TSServerLstnr.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\server\TSServerOpq.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\server\TSServerSessionReq.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\server\TSServerStats.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\server\TSServerStreamPath.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\server\TSServerStreamReq.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\server\TSServerStreamReqConn.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\server\TSServerStreams.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\TSContext.h" />
+    <ClInclude Include="..\..\..\src\core\TSCypher.h" />
+    <ClInclude Include="..\..\..\src\core\TSCypherData.h" />
+    <ClInclude Include="..\..\..\src\core\TSCypherJob.h" />
+    <ClInclude Include="..\..\..\src\core\TSDefs.h" />
+    <ClInclude Include="..\..\..\src\core\TSFilesystem.h" />
+    <ClInclude Include="..\..\..\src\core\TSRequestsMap.h" />
+    <ClInclude Include="..\..\..\src\core\TSThread.h" />
+    <ClInclude Include="..\..\..\src\core\logic\TSStreamUnitBuff.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\TSThreadStats.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\core\config\TSCfg.c">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\config\TSCfgApplePushServices.c">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\config\TSCfgContext.c">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\config\TSCfgCypher.c">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\config\TSCfgFilesystem.c">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\config\TSCfgFirebaseCM.c">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\config\TSCfgLocale.c">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\config\TSCfgMail.c">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\config\TSCfgOutServer.c">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\config\TSCfgRestApiClt.c">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\config\TSCfgServer.c">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\config\TSCfgStream.c">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\config\TSCfgStreamVersion.c">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\config\TSCfgTelemetry.c">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\config\TSCfgThreads.c">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\client\TSClient.c">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\client\TSClientChannel.c">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\client\TSClientChannelRequest.c">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSCertificate.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSClientRequester.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSClientRequesterConn.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSClientRequesterConnStats.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSClientRequesterDevice.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSClientRoot.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSDevice.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSDeviceLocal.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSFile.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSHello.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSIdentityLocal.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSNotifications.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSStreamBuilder.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSStreamDefs.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSStreamsSessionMsg.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSStreamsStorage.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSStreamsStorageStats.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSStreamStorage.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSStreamStorageFiles.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSStreamStorageFilesGrp.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSStreamUnit.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\logic\TSStreamVersionStorage.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\server\TSApiRestClt.c">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\server\TSApplePushServicesClt.c">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\server\TSFirebaseCMClt.c">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\server\TSMailClt.c">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\server\TSNotifsList.c">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\server\TSServer.c">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\server\TSServerLogicClt.c">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\server\TSServerLstnr.c">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\server\TSServerSessionReq.c">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\server\TSServerStats.c">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\server\TSServerStreamPath.c">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\server\TSServerStreamReq.c">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\server\TSServerStreamReqConn.c">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\server\TSServerStreams.c">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\TSContext.c" />
+    <ClCompile Include="..\..\..\src\core\TSCypher.c" />
+    <ClCompile Include="..\..\..\src\core\TSCypherData.c" />
+    <ClCompile Include="..\..\..\src\core\TSCypherJob.c" />
+    <ClCompile Include="..\..\..\src\core\TSFilesystem.c" />
+    <ClCompile Include="..\..\..\src\core\TSRequestsMap.c" />
+    <ClCompile Include="..\..\..\src\core\TSThread.c" />
+    <ClCompile Include="..\..\..\src\core\logic\TSStreamUnitBuff.c">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\TSThreadStats.c" />
+  </ItemGroup>
+</Project>

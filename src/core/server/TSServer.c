@@ -403,7 +403,7 @@ void TSServerStats_concatProcessState(const STTSServerStatsProcessState* obj, co
 void TSServerStats_statsChangedOpq_(STTSServerOpq* opq){
 	//disable memory stats
 #	ifdef CONFIG_NB_INCLUDE_THREADS_ENABLED
-	NBProcess_memStatsEnabledThreadPush(FALSE, __FILE__, __LINE__, __func__);
+	NBMngrProcess_memStatsEnabledThreadPush(FALSE, __FILE__, __LINE__, __func__);
 #	endif
 	NBThreadMutex_lock(&opq->mutex);
 	{
@@ -446,7 +446,7 @@ void TSServerStats_statsChangedOpq_(STTSServerOpq* opq){
 	}
 	NBThreadMutex_unlock(&opq->mutex);
 #	ifdef CONFIG_NB_INCLUDE_THREADS_ENABLED
-	NBProcess_memStatsEnabledThreadPop(__FILE__, __LINE__, __func__);
+	NBMngrProcess_memStatsEnabledThreadPop(__FILE__, __LINE__, __func__);
 #	endif
 }
 
@@ -1523,17 +1523,17 @@ void TSServerStats_getDataLockedOpq_(STTSServerOpq* opq, STTSServerStatsData* ds
 	const STTSStreamsStorageStatsData storageStats	= TSStreamsStorageStats_getData(&opq->streams.storage.stats, resetAccum);
 #	ifdef CONFIG_NB_INCLUDE_THREADS_METRICS
 	const STTSCfgTelemetryProcess* cfgProcess		= &cfg->server.telemetry.process;
-	STNBProcessStatsData processStats;
-	STNBProcessStatsData* threadStats			= NULL;
+	STNBMngrProcessStatsData processStats;
+	STNBMngrProcessStatsData* threadStats			= NULL;
 	UI32 threadStatsSz								= 0;
-	NBProcessStatsData_init(&processStats);
+	NBMngrProcessStatsData_init(&processStats);
 	//load process stats (unlocked to avoid lock into stats)
 	{
 		NBThreadMutex_unlock(&opq->mutex);
 		{
 			NBMemory_setZero(processStats);
 			if(cfgProcess->statsLevel > ENNBLogLevel_None){
-				NBProcess_getGlobalStatsData(&processStats, cfgProcess->locksByMethod, resetAccum);
+				NBMngrProcess_getGlobalStatsData(&processStats, cfgProcess->locksByMethod, resetAccum);
 			}
 			if(cfgProcess->threads != NULL && cfgProcess->threadsSz > 0){
 				NBASSERT(threadStatsSz == 0)
@@ -1549,14 +1549,14 @@ void TSServerStats_getDataLockedOpq_(STTSServerOpq* opq, STTSServerStatsData* ds
 				//Allocate stats
 				if(threadStatsSz > 0){
 					UI32 threadStatsUse = 0;								
-					threadStats = NBMemory_allocTypes(STNBProcessStatsData, threadStatsSz);
+					threadStats = NBMemory_allocTypes(STNBMngrProcessStatsData, threadStatsSz);
 					{
 						UI32 i; for(i = 0; i < cfgProcess->threadsSz; i++){
 							const STTSCfgTelemetryThread* cfgT = &cfgProcess->threads[i];
 							if(cfgT->statsLevel > ENNBLogLevel_None && !NBString_strIsEmpty(cfgT->firstKnownFunc)){
-								STNBProcessStatsData* d = &threadStats[threadStatsUse++]; NBASSERT(threadStatsUse <= threadStatsSz)
-								NBProcessStatsData_init(d);
-								NBProcess_getThreadStatsDataByFirstKwnonFuncName(cfgT->firstKnownFunc, d, cfgT->locksByMethod, resetAccum);
+								STNBMngrProcessStatsData* d = &threadStats[threadStatsUse++]; NBASSERT(threadStatsUse <= threadStatsSz)
+								NBMngrProcessStatsData_init(d);
+								NBMngrProcess_getThreadStatsDataByFirstKwnonFuncName(cfgT->firstKnownFunc, d, cfgT->locksByMethod, resetAccum);
 							}
 						}
 					}
@@ -1577,7 +1577,7 @@ void TSServerStats_getDataLockedOpq_(STTSServerOpq* opq, STTSServerStatsData* ds
 #		ifdef CONFIG_NB_INCLUDE_THREADS_METRICS
 		if(cfg->server.telemetry.process.statsLevel > ENNBLogLevel_None){
 			dst->loaded.process.stats = processStats.alive;
-			NBMemory_setZeroSt(processStats.alive, STNBProcessStatsState); //internal data will be released by 'TSServerStatsData'
+			NBMemory_setZeroSt(processStats.alive, STNBMngrProcessStatsState); //internal data will be released by 'TSServerStatsData'
 		}
 		if(threadStats != NULL && threadStatsSz > 0){
 			dst->loaded.process.threadsSz	= threadStatsSz;
@@ -1585,14 +1585,14 @@ void TSServerStats_getDataLockedOpq_(STTSServerOpq* opq, STTSServerStatsData* ds
 			{
 				UI32 i; for(i = 0; i < threadStatsSz; i++){
 					const STTSCfgTelemetryThread* cfgT	= &cfgProcess->threads[i];
-					STNBProcessStatsData* src		= &threadStats[i];
+					STNBMngrProcessStatsData* src		= &threadStats[i];
 					STTSServerStatsThreadState* dst2	= &dst->loaded.process.threads[i];
 					NBMemory_setZeroSt(*dst2, STTSServerStatsThreadState);
 					dst2->name				= cfgT->name;
 					dst2->firstKnownMethod	= cfgT->firstKnownFunc;
 					dst2->statsLevel		= cfgT->statsLevel;
 					dst2->stats				= src->alive; 
-					NBMemory_setZeroSt(src->alive, STNBProcessStatsState); //internal data will be released by 'TSServerStatsData'
+					NBMemory_setZeroSt(src->alive, STNBMngrProcessStatsState); //internal data will be released by 'TSServerStatsData'
 				}
 			}
 		}
@@ -1605,7 +1605,7 @@ void TSServerStats_getDataLockedOpq_(STTSServerOpq* opq, STTSServerStatsData* ds
 #		ifdef CONFIG_NB_INCLUDE_THREADS_METRICS
 		if(cfg->server.telemetry.process.statsLevel > ENNBLogLevel_None){
 			dst->accum.process.stats = processStats.accum;
-			NBMemory_setZeroSt(processStats.accum, STNBProcessStatsState); //internal data will be released by 'TSServerStatsData'
+			NBMemory_setZeroSt(processStats.accum, STNBMngrProcessStatsState); //internal data will be released by 'TSServerStatsData'
 		}
 		if(threadStats != NULL && threadStatsSz > 0){
 			dst->accum.process.threadsSz	= threadStatsSz;
@@ -1613,14 +1613,14 @@ void TSServerStats_getDataLockedOpq_(STTSServerOpq* opq, STTSServerStatsData* ds
 			{
 				UI32 i; for(i = 0; i < threadStatsSz; i++){
 					const STTSCfgTelemetryThread* cfgT	= &cfgProcess->threads[i];
-					STNBProcessStatsData* src		= &threadStats[i];
+					STNBMngrProcessStatsData* src		= &threadStats[i];
 					STTSServerStatsThreadState* dst2	= &dst->accum.process.threads[i];
 					NBMemory_setZeroSt(*dst2, STTSServerStatsThreadState);
 					dst2->name				= cfgT->name;
 					dst2->firstKnownMethod	= cfgT->firstKnownFunc;
 					dst2->statsLevel		= cfgT->statsLevel;
 					dst2->stats				= src->accum;
-					NBMemory_setZeroSt(src->accum, STNBProcessStatsState); //internal data will be released by 'TSServerStatsData'
+					NBMemory_setZeroSt(src->accum, STNBMngrProcessStatsState); //internal data will be released by 'TSServerStatsData'
 				}
 			}
 		}
@@ -1633,7 +1633,7 @@ void TSServerStats_getDataLockedOpq_(STTSServerOpq* opq, STTSServerStatsData* ds
 #		ifdef CONFIG_NB_INCLUDE_THREADS_METRICS
 		if(cfg->server.telemetry.process.statsLevel > ENNBLogLevel_None){
 			dst->total.process.stats = processStats.total;
-			NBMemory_setZeroSt(processStats.total, STNBProcessStatsState); //internal data will be released by 'TSServerStatsData'
+			NBMemory_setZeroSt(processStats.total, STNBMngrProcessStatsState); //internal data will be released by 'TSServerStatsData'
 		}
 		if(threadStats != NULL && threadStatsSz > 0){
 			dst->total.process.threadsSz	= threadStatsSz;
@@ -1641,14 +1641,14 @@ void TSServerStats_getDataLockedOpq_(STTSServerOpq* opq, STTSServerStatsData* ds
 			{
 				UI32 i; for(i = 0; i < threadStatsSz; i++){
 					const STTSCfgTelemetryThread* cfgT	= &cfgProcess->threads[i];
-					STNBProcessStatsData* src		= &threadStats[i];
+					STNBMngrProcessStatsData* src		= &threadStats[i];
 					STTSServerStatsThreadState* dst2	= &dst->total.process.threads[i];
 					NBMemory_setZeroSt(*dst2, STTSServerStatsThreadState);
 					dst2->name				= cfgT->name;
 					dst2->firstKnownMethod	= cfgT->firstKnownFunc;
 					dst2->statsLevel		= cfgT->statsLevel;
 					dst2->stats				= src->total;
-					NBMemory_setZeroSt(src->total, STNBProcessStatsState); //internal data will be released by 'TSServerStatsData'
+					NBMemory_setZeroSt(src->total, STNBMngrProcessStatsState); //internal data will be released by 'TSServerStatsData'
 				}
 			}
 		}
@@ -1662,8 +1662,8 @@ void TSServerStats_getDataLockedOpq_(STTSServerOpq* opq, STTSServerStatsData* ds
 			if(threadStats != NULL){
 				if(threadStatsSz > 0){
 					UI32 i; for(i = 0; i < threadStatsSz; i++){
-						STNBProcessStatsData* d = &threadStats[i];
-						NBProcessStatsData_release(d);
+						STNBMngrProcessStatsData* d = &threadStats[i];
+						NBMngrProcessStatsData_release(d);
 					}
 				}
 				NBMemory_free(threadStats);
@@ -1672,7 +1672,7 @@ void TSServerStats_getDataLockedOpq_(STTSServerOpq* opq, STTSServerStatsData* ds
 			threadStatsSz = 0;
 		}
 		//process
-		NBProcessStatsData_release(&processStats);
+		NBMngrProcessStatsData_release(&processStats);
 	}
 #	endif
 }
@@ -1750,7 +1750,7 @@ void TSServerStats_concatStateStreamsLocked_(STTSServerOpq* opq, const STTSServe
         if(grp == ENTSServerStartsGrp_Loaded){
             BOOL opened2 = FALSE;
             SI32 i; SI64 countUnnamed = 0, counts[ENNBHndlNativeType_Count];
-            NBProcess_getHndlsByTypesCounts(counts, ENNBHndlNativeType_Count);
+            NBMngrProcess_getHndlsByTypesCounts(counts, ENNBHndlNativeType_Count);
             for(i = 0; i <= ENNBHndlNativeType_Count; i++){
                 SI64 count = 0; const char* name = "";
                 if(i == ENNBHndlNativeType_Count){
@@ -1953,7 +1953,7 @@ void TSServerStats_concatProcessState(const STTSServerStatsProcessState* obj, co
 		//global
 		{
 			NBString_empty(&str);
-			NBProcess_concatStatsState(&obj->stats, logLvl, "", pre.str, ignoreEmpties, &str);
+			NBMngrProcess_concatStatsState(&obj->stats, logLvl, "", pre.str, ignoreEmpties, &str);
 			if(str.length > 0){
 				if(opened){
 					NBString_concat(dst, "\n");
@@ -1975,7 +1975,7 @@ void TSServerStats_concatProcessState(const STTSServerStatsProcessState* obj, co
 			UI32 i; for(i = 0; i < obj->threadsSz; i++){
 				const STTSServerStatsThreadState* t = &obj->threads[i];
 				NBString_empty(&str);
-				NBProcess_concatStatsState(&t->stats, t->statsLevel, "", pre.str, ignoreEmpties, &str);
+				NBMngrProcess_concatStatsState(&t->stats, t->statsLevel, "", pre.str, ignoreEmpties, &str);
 				if(str.length > 0){
 					if(opened){
 						NBString_concat(dst, "\n");

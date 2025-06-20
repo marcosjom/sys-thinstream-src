@@ -96,7 +96,7 @@ int main(int argc, const char * argv[]) {
 		}
 	}
 	//Start engine
-	NBProcess_init();
+	NBMngrProcess_init();
 	NBMngrStructMaps_init();
 	NBSocket_initEngine();
 	NBSocket_initWSA();
@@ -143,7 +143,7 @@ int main(int argc, const char * argv[]) {
 	NBSocket_finishWSA();
 	NBSocket_releaseEngine();
 	NBMngrStructMaps_release();
-	NBProcess_release();
+	NBMngrProcess_release();
 	PRINTF_INFO("Stress, end-of-program.\n");
 	return 0;
 }

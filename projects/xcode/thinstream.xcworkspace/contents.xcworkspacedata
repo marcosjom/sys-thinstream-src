@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <Group
+      location = "container:"
+      name = "Dependencies">
+      <FileRef
+         location = "group:../../../../sys-nbframework/sys-nbframework-src/projects/xcode/nbframework/nbframework.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "absolute:/Users/mortegam/Desktop/NIBSA_proyectos/CltMarcosOrtega/sys-auframework/lib-auframework-src/projects/xcode/lib-auframework/lib-auframework.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:../../../../sys-auframework/lib-auframework-media-src/projects/xcode/lib-auframework-media/lib-auframework-media.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:../../../../sys-auframework/lib-auframework-app-src/projects/xcode/lib-auframework-app/lib-auframework-app.xcodeproj">
+      </FileRef>
+   </Group>
+   <FileRef
+      location = "group:thinstream/thinstream.xcodeproj">
+   </FileRef>
+</Workspace>

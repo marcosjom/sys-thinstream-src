@@ -8,7 +8,7 @@
 #ifndef TSServerStreamReq_h
 #define TSServerStreamReq_h
 
-#include "nb/core/NBProcess.h"
+#include "nb/core/NBMngrProcess.h"
 #include "nb/core/NBThreadMutex.h"
 #include "nb/core/NBThreadCond.h"
 #include "nb/core/NBRange.h"

@@ -18,8 +18,8 @@
 #include "visual/AUSceneIntroDefs.h"
 
 
-#define SIGNIT_BUILD_ID		45			//Update this value every compilation-to-share
-#define SIGNIT_BUILD_DATE	__DATE__	//Update this value every compilation-to-share
+#define THINSTREAM_BUILD_ID		1			//Update this value every compilation-to-share
+#define THINSTREAM_BUILD_DATE	__DATE__	//Update this value every compilation-to-share
 
 typedef struct STSceneInfoMetrics_ {
 	float		formWidth;	//form width

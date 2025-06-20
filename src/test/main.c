@@ -8,7 +8,7 @@
 #include "nb/NBFrameworkPch.h"
 //
 #include "nb/core/NBMngrStructMaps.h"
-#include "nb/core/NBProcess.h"
+#include "nb/core/NBMngrProcess.h"
 #include "nb/net/NBSocket.h"
 //
 #include "nb/core/NBString.h"
@@ -47,7 +47,7 @@ static const STNBVTbl vTbl = {
 };*/
 
 int main(int argc, const char * argv[]) {
-	NBProcess_init();
+	NBMngrProcess_init();
 	NBMngrStructMaps_init();
 	NBSocket_initEngine();
 	//Test SDP parser (Session Description Protocol)
@@ -427,7 +427,7 @@ int main(int argc, const char * argv[]) {
 	}
 	NBSocket_releaseEngine();
 	NBMngrStructMaps_release();
-	NBProcess_release();
+	NBMngrProcess_release();
 	return 0;
 }
 

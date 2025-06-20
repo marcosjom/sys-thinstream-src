@@ -1547,15 +1547,15 @@ STTSClientStatsData TSClientStats_getDataLockedOpq_(STTSClientOpq* opq, STNBArra
 	const STNBDataPtrsStatsData buffsStats			= NBDataPtrsStats_getData(bStats, resetAccum);
 #	ifdef CONFIG_NB_INCLUDE_THREADS_METRICS
 	const STTSCfgTelemetryProcess* cfgProcess		= &cfg->server.telemetry.process;
-	STNBProcessStatsData processStats;
-	STNBProcessStatsData* threadStats			= NULL;
+	STNBMngrProcessStatsData processStats;
+	STNBMngrProcessStatsData* threadStats			= NULL;
 	UI32 threadStatsSz								= 0;
-	NBProcessStatsData_init(&processStats);
+	NBMngrProcessStatsData_init(&processStats);
 	//load process stats
 	{
 		NBMemory_setZero(processStats);
 		if(cfgProcess->statsLevel > ENNBLogLevel_None){
-			NBProcess_getGlobalStatsData(&processStats, cfgProcess->locksByMethod, resetAccum);
+			NBMngrProcess_getGlobalStatsData(&processStats, cfgProcess->locksByMethod, resetAccum);
 		}
 		if(cfgProcess->threads != NULL && cfgProcess->threadsSz > 0){
 			NBASSERT(threadStatsSz == 0)
@@ -1571,14 +1571,14 @@ STTSClientStatsData TSClientStats_getDataLockedOpq_(STTSClientOpq* opq, STNBArra
 			//Allocate stats
 			if(threadStatsSz > 0){
 				UI32 threadStatsUse = 0;								
-				threadStats = NBMemory_allocTypes(STNBProcessStatsData, threadStatsSz);
+				threadStats = NBMemory_allocTypes(STNBMngrProcessStatsData, threadStatsSz);
 				{
 					UI32 i; for(i = 0; i < cfgProcess->threadsSz; i++){
 						const STTSCfgTelemetryThread* cfgT = &cfgProcess->threads[i];
 						if(cfgT->statsLevel > ENNBLogLevel_None && !NBString_strIsEmpty(cfgT->firstKnownFunc)){
-							STNBProcessStatsData* d = &threadStats[threadStatsUse++]; NBASSERT(threadStatsUse <= threadStatsSz)
-							NBProcessStatsData_init(d);
-							NBProcess_getThreadStatsDataByFirstKwnonFuncName(cfgT->firstKnownFunc, d, cfgT->locksByMethod, resetAccum);
+							STNBMngrProcessStatsData* d = &threadStats[threadStatsUse++]; NBASSERT(threadStatsUse <= threadStatsSz)
+							NBMngrProcessStatsData_init(d);
+							NBMngrProcess_getThreadStatsDataByFirstKwnonFuncName(cfgT->firstKnownFunc, d, cfgT->locksByMethod, resetAccum);
 						}
 					}
 				}
@@ -1602,7 +1602,7 @@ STTSClientStatsData TSClientStats_getDataLockedOpq_(STTSClientOpq* opq, STNBArra
 			{
 				UI32 i; for(i = 0; i < threadStatsSz; i++){
 					STTSClientStatsThreadState* dst = &r.loaded.process.threads[i];
-					const STNBProcessStatsData* src = &threadStats[i];
+					const STNBMngrProcessStatsData* src = &threadStats[i];
 					const STTSCfgTelemetryThread* cfgT = &cfgProcess->threads[i];
 					NBMemory_setZeroSt(*dst, STTSClientStatsThreadState);
 					dst->name				= cfgT->name;
@@ -1625,7 +1625,7 @@ STTSClientStatsData TSClientStats_getDataLockedOpq_(STTSClientOpq* opq, STNBArra
 			{
 				UI32 i; for(i = 0; i < threadStatsSz; i++){
 					STTSClientStatsThreadState* dst = &r.accum.process.threads[i];
-					const STNBProcessStatsData* src = &threadStats[i];
+					const STNBMngrProcessStatsData* src = &threadStats[i];
 					const STTSCfgTelemetryThread* cfgT = &cfgProcess->threads[i];
 					NBMemory_setZeroSt(*dst, STTSClientStatsThreadState);
 					dst->name				= cfgT->name;
@@ -1648,7 +1648,7 @@ STTSClientStatsData TSClientStats_getDataLockedOpq_(STTSClientOpq* opq, STNBArra
 			{
 				UI32 i; for(i = 0; i < threadStatsSz; i++){
 					STTSClientStatsThreadState* dst = &r.total.process.threads[i];
-					const STNBProcessStatsData* src = &threadStats[i];
+					const STNBMngrProcessStatsData* src = &threadStats[i];
 					const STTSCfgTelemetryThread* cfgT = &cfgProcess->threads[i];
 					NBMemory_setZeroSt(*dst, STTSClientStatsThreadState);
 					dst->name				= cfgT->name;
@@ -1668,8 +1668,8 @@ STTSClientStatsData TSClientStats_getDataLockedOpq_(STTSClientOpq* opq, STNBArra
 			if(threadStats != NULL){
 				if(threadStatsSz > 0){
 					UI32 i; for(i = 0; i < threadStatsSz; i++){
-						STNBProcessStatsData* d = &threadStats[i];
-						NBProcessStatsData_release(d);
+						STNBMngrProcessStatsData* d = &threadStats[i];
+						NBMngrProcessStatsData_release(d);
 					}
 				}
 				NBMemory_free(threadStats);
@@ -1678,7 +1678,7 @@ STTSClientStatsData TSClientStats_getDataLockedOpq_(STTSClientOpq* opq, STNBArra
 			threadStatsSz = 0;
 		}
 		//process
-		NBProcessStatsData_release(&processStats);
+		NBMngrProcessStatsData_release(&processStats);
 	}
 #	endif
 	//
@@ -1858,7 +1858,7 @@ void TSClientStats_concatProcessState(const STTSClientStatsProcessState* obj, co
 		//global
 		{
 			NBString_empty(&str);
-			NBProcess_concatStatsState(&obj->stats, logLvl, "", pre.str, ignoreEmpties, &str);
+			NBMngrProcess_concatStatsState(&obj->stats, logLvl, "", pre.str, ignoreEmpties, &str);
 			if(str.length > 0){
 				if(opened){
 					NBString_concat(dst, "\n");
@@ -1880,7 +1880,7 @@ void TSClientStats_concatProcessState(const STTSClientStatsProcessState* obj, co
 			UI32 i; for(i = 0; i < obj->threadsSz; i++){
 				const STTSClientStatsThreadState* t = &obj->threads[i];
 				NBString_empty(&str);
-				NBProcess_concatStatsState(&t->stats, t->statsLevel, "", pre.str, ignoreEmpties, &str);
+				NBMngrProcess_concatStatsState(&t->stats, t->statsLevel, "", pre.str, ignoreEmpties, &str);
 				if(str.length > 0){
 					if(opened){
 						NBString_concat(dst, "\n");

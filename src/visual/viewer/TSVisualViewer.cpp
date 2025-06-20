@@ -871,7 +871,7 @@ void TSVisualViewer::privSyncStreams(const float width){
 	//Load rows (invert order)
 	{
 		{
-			//AUTextura* texIcoGT	= NBGestorTexturas::texturaDesdeArchivoPNG("signit/icons.png#viewItem");
+			//AUTextura* texIcoGT	= NBGestorTexturas::texturaDesdeArchivoPNG("thinstream/icons.png#viewItem");
 			const SI32 qGrpsBefore = _grps.array.use;
 			const SI32 qRowsBefore = _rows.array.use;
 			STNBArray pendRows;	//STVisualViewerRow

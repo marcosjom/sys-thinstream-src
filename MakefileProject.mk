@@ -14,10 +14,10 @@ NB_PROJECT_CXXFLAGS         := -fPIC -std=c++11
 NB_PROJECT_INCLUDES         := \
    src \
    src/core \
-   ../../../CltNicaraguaBinary/sys-nbframework/lib-nbframework-src/include \
-   ../../../CltNicaraguaBinary/sys-auframework/lib-auframework-src/include \
-   ../../../CltNicaraguaBinary/sys-auframework/lib-auframework-media-src/include \
-   ../../../CltNicaraguaBinary/sys-auframework/lib-auframework-app-src/include
+   ../../sys-nbframework/sys-nbframework-src/include \
+   ../../sys-auframework/lib-auframework-src/include \
+   ../../sys-auframework/lib-auframework-media-src/include \
+   ../../sys-auframework/lib-auframework-app-src/include
 
 #-------------------------
 # TARGET

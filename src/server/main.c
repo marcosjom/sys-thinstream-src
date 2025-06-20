@@ -100,7 +100,7 @@ int main(int argc, const char * argv[]) {
 	SI32 msSleepBeforeRun = 0, msSleepAfterRun = 0, msRunAndQuit = 0;
 	const char* cfgPath = NULL;
 	//Start engine
-	NBProcess_init();
+	NBMngrProcess_init();
 	NBMngrStructMaps_init();
 	NBSocket_initEngine();
 	NBSocket_initWSA();
@@ -250,7 +250,7 @@ int main(int argc, const char * argv[]) {
 	NBSocket_finishWSA();
 	NBSocket_releaseEngine();
 	NBMngrStructMaps_release();
-	NBProcess_release();
+	NBMngrProcess_release();
 	//End sleep
 	if(msSleepAfterRun > 0){
 #       ifdef _WIN32

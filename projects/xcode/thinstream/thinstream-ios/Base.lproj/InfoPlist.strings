@@ -1,0 +1,11 @@
+/* 
+  InfoPlist.strings
+  thinstream
+
+  Created by Marcos Ortega on 11/23/19.
+  
+*/
+
+"NSCameraUsageDescription"="Take real-time pictures and Scan QRCodes";
+"NSContactsUsageDescription"="Translate anonymous identifiers to contact names";
+"NSFaceIDUsageDescription"="User authentication and password autofilling";
