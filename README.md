@@ -4,11 +4,9 @@ This repository was moved to Github. My original repository has >4 years of acti
 
 # sys-thinstream-src
 
-This is a Real-Time-Stream-Protocol (RTSP) based cameras recorder and distribution service.
+This is a RTSP-based (Real-Time-Stream-Protocol) cameras recorder and distribution service.
 
-Created by [Marcos Ortega](https://mortegam.com/), in use serving https://mortegam.com/
-
-Built on top of [sys-nbframework-src](https://github.com/marcosjom/sys-nbframework-src), this project serves as demostration of how to implement your app's API webserver when you build an app or service with [sys-nbframework-src](https://github.com/marcosjom/sys-nbframework-src).
+Created by [Marcos Ortega](https://mortegam.com/). Built on top of [sys-nbframework-src](https://github.com/marcosjom/sys-nbframework-src).
 
 # Features
 
@@ -25,7 +23,7 @@ Compile and install this in a RaspberryPi or any server of your choice in your c
 - optionally, will record your streams on disk, deleting old files after a treshhold.
 - optionally, will serve your real-time and recorded streams via HTTP/S server for remote viewing.
 
-If you pair this service with nbplayer, you can stream to one or multiple TVs or monitors to render grids of your cameras.
+If you pair this service with [nbplayer](https://github.com/marcosjom/nbplayer), you can stream to one or multiple TVs or monitors to render grids of your cameras.
 
 ![Running on a raspberry-pi-4-B and a 1080p-tv!](_photo-nbplayer-tv-1080.jpg ", raspberry-pi-4-B, nbplayer and a 1080p-tv")
 
@@ -445,13 +443,14 @@ The third command runs the server using the configuration from `myfile.json`.
 
 ```
 
-In this example one `streamsGrps` was defined with two `cameras`, and two `streams` qualities per camera.
+In this example:
+ - one `streamsGrps` was defined with two `cameras`, and two `streams` qualities per camera.
 
-The video-streams are saved in a local-storage folder up to 10GB, once the limit is reached old files will be deleted.
+ - the video-streams are saved in a local-storage folder up to 10GB, once the limit is reached old files will be deleted.
 
-It is running a local HTTPS webserve in the 30443 `port` and the live or stored streams are served to external viewers.
+ - it is running a local HTTPS webserver in the 30443 `port` and the live-or-stored streams are served to external viewers.
 
-One thread is used for the whole load.
+ - one thread is used for the whole load.
 
 # Contact
 
