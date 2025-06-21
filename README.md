@@ -32,14 +32,16 @@ If you pair this service with [nbplayer](https://github.com/marcosjom/nbplayer),
 For simplicity, create this folder structure:
 
 - my_folder
-   - sys-thinstream-src<br/>
+   - sys-thinstream<br/>
       - [sys-thinstream-src](https://github.com/marcosjom/sys-thinstream-src)<br/>
    - sys-nbframework<br/>
       - [sys-nbframework-src](https://github.com/marcosjom/sys-nbframework-src)<br/>
 
 You can create your own folders structure but it will require to update some paths in the projects and scripts.
 
-The following steps will create and executable file.
+Follow the instructions in the `sys-nbframework-src/ext/*_howToBuild.txt` files to download the source of third-party embedded libraries. Optionally, these libraries can be dynamically linked to the ones installed in the operating system.
+
+The following steps will create an executable file.
 
 ## Windows
 
@@ -56,7 +58,10 @@ In a terminal:
 ```
 cd sys-thinstream-src
 make thinstream-server
+make thinstream-server NB_LIB_SSL_SYSTEM=1 NB_LIB_LZ4_SYSTEM=1
 ```
+
+The first `make` command will embed the dependencies into the executable from its source, the second will link to the libraries installed on the current system.
 
 Check each project's `Makefile` and `MakefileProject.mk` files, and the [MakefileFuncs.mk](https://github.com/marcosjom/sys-nbframework-src?tab=readme-ov-file#makefilefuncsmk) to understand the `make` process, including the accepted flags and targets.
 
