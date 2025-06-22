@@ -58,12 +58,18 @@ In a terminal:
 ```
 cd sys-thinstream-src
 make thinstream-server
+```
+
+or
+
+```
+cd sys-thinstream-src
 make thinstream-server NB_LIB_SSL_SYSTEM=1 NB_LIB_LZ4_SYSTEM=1
 ```
 
-The first `make` command will embed the dependencies into the executable from its source, the second will link to the libraries installed on the current system.
+The first `make` command will embed the dependencies into the executable from its source. The second will link to the libraries installed on the current system.
 
-Check each project's `Makefile` and `MakefileProject.mk` files, and the [MakefileFuncs.mk](https://github.com/marcosjom/sys-nbframework-src?tab=readme-ov-file#makefilefuncsmk) to understand the `make` process, including the accepted flags and targets.
+Check each project's `Makefile` and `MakefileProject.mk` files, and the [MakefileFuncs.mk](https://github.com/marcosjom/makefile-like-IDE) to understand the `make` process, including the accepted flags and targets.
 
 # How to run
 
